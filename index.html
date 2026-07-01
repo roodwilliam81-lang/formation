@@ -1,0 +1,1136 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width,initial-scale=1.0"/>
+<title>WebPro Academy – Créez votre site & générez des revenus</title>
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;600;700&family=Inter:wght@300;400;500;600&display=swap" rel="stylesheet">
+<style>
+:root{--bg:#F8F7F4;--surface:#FFFFFF;--border:#E4E1D9;--accent:#5B4FE8;--accent-dk:#4A3FD0;--green:#00A878;--green-dk:#008F66;--text:#18181C;--muted:#65656F;--danger:#DC3545;--gold:#C97D00;--shadow:0 1px 3px rgba(0,0,0,.07),0 1px 2px rgba(0,0,0,.05);--shadow-md:0 4px 16px rgba(0,0,0,.09);}
+*{margin:0;padding:0;box-sizing:border-box;}
+html{scroll-behavior:smooth;}
+body{background:var(--bg);color:var(--text);font-family:'Inter',sans-serif;min-height:100vh;-webkit-font-smoothing:antialiased;}
+button,input,select,a{font-family:inherit;}
+
+/* ====== NAV ====== */
+nav{position:fixed;top:0;left:0;right:0;z-index:900;display:flex;align-items:center;justify-content:space-between;padding:14px 5%;background:rgba(248,247,244,.93);backdrop-filter:blur(14px);border-bottom:1px solid var(--border);}
+.nav-logo{font-family:'Space Grotesk',sans-serif;font-weight:700;font-size:1.2rem;color:var(--text);cursor:pointer;user-select:none;}
+.nav-logo span{color:var(--accent);}
+#nav-actions{display:flex;gap:10px;align-items:center;flex-wrap:wrap;}
+
+/* ====== BUTTONS ====== */
+.btn{display:inline-flex;align-items:center;justify-content:center;gap:6px;padding:10px 20px;border-radius:9px;font-size:.875rem;font-weight:600;cursor:pointer;transition:all .15s ease;border:1.5px solid transparent;white-space:nowrap;text-decoration:none;user-select:none;-webkit-tap-highlight-color:transparent;}
+.btn:disabled{opacity:.6;cursor:not-allowed;pointer-events:none;}
+.btn:active:not(:disabled){transform:scale(.97);}
+.btn-ghost{background:transparent;border-color:var(--border);color:var(--text);}
+.btn-ghost:hover{border-color:var(--accent);color:var(--accent);}
+.btn-primary{background:var(--accent);color:#fff;border-color:var(--accent);}
+.btn-primary:hover{background:var(--accent-dk);box-shadow:var(--shadow-md);}
+.btn-success{background:var(--green);color:#fff;border-color:var(--green);}
+.btn-success:hover{background:var(--green-dk);box-shadow:var(--shadow-md);}
+.btn-danger{background:transparent;color:var(--danger);border-color:rgba(220,53,69,.3);}
+.btn-danger:hover{background:var(--danger);color:#fff;border-color:var(--danger);}
+.btn-sm{padding:7px 13px;font-size:.8rem;}
+.btn-lg{padding:14px 32px;font-size:.96rem;}
+.btn-block{width:100%;}
+
+/* ====== PAGES ====== */
+.page{display:none;}
+.page.active{display:block;}
+
+/* ====== HOME ====== */
+#page-home{padding-top:72px;}
+.hero{min-height:88vh;display:flex;flex-direction:column;align-items:center;justify-content:center;text-align:center;padding:60px 5% 40px;background:radial-gradient(ellipse 80% 50% at 50% -5%,rgba(91,79,232,.09),transparent);}
+.hero-badge{display:inline-flex;align-items:center;gap:8px;background:#fff;border:1px solid var(--border);box-shadow:var(--shadow);border-radius:100px;padding:7px 16px;font-size:.8rem;color:var(--text);margin-bottom:28px;font-weight:500;}
+.hero-badge .dot{width:7px;height:7px;border-radius:50%;background:var(--green);animation:pulse 2s infinite;}
+@keyframes pulse{0%,100%{opacity:1}50%{opacity:.3}}
+.hero h1{font-family:'Space Grotesk',sans-serif;font-size:clamp(2rem,5vw,3.7rem);font-weight:700;line-height:1.12;margin-bottom:18px;color:var(--text);}
+.hero h1 .c1{color:var(--accent);}
+.hero h1 .c2{color:var(--green);}
+.hero p{font-size:1.05rem;color:var(--muted);max-width:520px;line-height:1.7;margin-bottom:34px;}
+.hero-cta{display:flex;gap:12px;flex-wrap:wrap;justify-content:center;}
+.hero-stats{display:flex;gap:48px;margin-top:60px;padding-top:32px;border-top:1px solid var(--border);flex-wrap:wrap;justify-content:center;}
+.stat-num{font-family:'Space Grotesk',sans-serif;font-size:1.8rem;font-weight:700;color:var(--text);}
+.stat-num em{color:var(--accent);font-style:normal;}
+.stat-lbl{font-size:.78rem;color:var(--muted);margin-top:3px;}
+
+section.wrap{max-width:1140px;margin:0 auto;padding:70px 5%;}
+.sec-tag{display:inline-block;color:var(--accent);font-size:.75rem;font-weight:700;letter-spacing:1.5px;text-transform:uppercase;margin-bottom:10px;}
+.sec-title{font-family:'Space Grotesk',sans-serif;font-size:clamp(1.5rem,3vw,2.2rem);font-weight:700;margin-bottom:12px;color:var(--text);}
+.sec-sub{color:var(--muted);font-size:1rem;line-height:1.7;max-width:520px;}
+.center{text-align:center;}.center .sec-sub{margin:0 auto;}
+
+.modules-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(265px,1fr));gap:16px;margin-top:40px;}
+.mod-card{background:var(--surface);border:1px solid var(--border);border-radius:14px;padding:24px;transition:transform .15s,box-shadow .15s;}
+.mod-card:hover{transform:translateY(-3px);box-shadow:var(--shadow-md);}
+.mod-num{font-family:'Space Grotesk',sans-serif;font-size:2rem;font-weight:700;color:#EAE8F5;margin-bottom:8px;}
+.mod-title{font-weight:600;font-size:.95rem;margin-bottom:7px;}
+.mod-desc{font-size:.84rem;color:var(--muted);line-height:1.6;}
+.mod-badge{display:inline-block;padding:3px 10px;border-radius:100px;font-size:.7rem;font-weight:700;margin-top:12px;}
+.badge-v{background:#EEEAFC;color:var(--accent);}
+.badge-b{background:#FEF3D3;color:var(--gold);}
+
+.steps{display:flex;flex-direction:column;margin-top:36px;max-width:580px;}
+.step{display:flex;gap:18px;padding:20px 0;border-bottom:1px solid var(--border);}
+.step:last-child{border-bottom:none;}
+.step-ico{width:44px;height:44px;border-radius:11px;background:#EEEAFC;display:flex;align-items:center;justify-content:center;font-size:1.2rem;flex-shrink:0;}
+.step h4{font-weight:600;font-size:.9rem;margin-bottom:4px;}
+.step p{font-size:.83rem;color:var(--muted);line-height:1.6;}
+
+.price-card{max-width:430px;margin:40px auto 0;background:var(--surface);border:2px solid var(--accent);border-radius:18px;padding:34px;position:relative;box-shadow:var(--shadow-md);}
+.price-top{position:absolute;top:-13px;left:50%;transform:translateX(-50%);background:var(--accent);color:#fff;padding:4px 16px;border-radius:100px;font-size:.73rem;font-weight:700;white-space:nowrap;}
+.price-val{font-family:'Space Grotesk',sans-serif;font-size:3rem;font-weight:700;margin:22px 0 5px;color:var(--text);}
+.price-val sup{font-size:1.1rem;color:var(--muted);vertical-align:super;}
+.price-period{color:var(--muted);font-size:.86rem;margin-bottom:24px;}
+.price-features{list-style:none;display:flex;flex-direction:column;gap:10px;margin-bottom:28px;}
+.price-features li{display:flex;align-items:center;gap:9px;font-size:.87rem;}
+.price-features li::before{content:'✓';color:var(--green);font-weight:700;width:16px;flex-shrink:0;}
+
+footer{background:var(--surface);border-top:1px solid var(--border);padding:28px 5%;text-align:center;color:var(--muted);font-size:.82rem;}
+footer a{color:var(--accent);text-decoration:none;}
+
+/* ====== DASHBOARD ====== */
+#page-dashboard{padding-top:80px;min-height:100vh;}
+.dash-wrap{max-width:720px;margin:0 auto;padding:0 5% 80px;}
+.dash-header h2{font-family:'Space Grotesk',sans-serif;font-size:1.6rem;font-weight:700;margin-bottom:4px;}
+.dash-header p{color:var(--muted);font-size:.87rem;margin-bottom:28px;}
+.card{background:var(--surface);border:1px solid var(--border);border-radius:14px;padding:24px;margin-bottom:16px;box-shadow:var(--shadow);}
+.card-title{font-size:.75rem;font-weight:700;text-transform:uppercase;letter-spacing:.6px;color:var(--muted);margin-bottom:14px;}
+.status-badge{display:inline-flex;align-items:center;gap:5px;padding:5px 12px;border-radius:100px;font-size:.77rem;font-weight:700;}
+.s-pending{background:#FEF3D3;color:#A36500;}
+.s-active{background:#D9F5EC;color:#00724F;}
+.key-box{background:#EDF9F4;border:2px solid var(--green);border-radius:11px;padding:16px 20px;display:flex;align-items:center;justify-content:space-between;gap:12px;flex-wrap:wrap;}
+.key-val{font-family:'Space Grotesk',sans-serif;font-size:1.05rem;font-weight:700;color:#00724F;letter-spacing:1.5px;word-break:break-all;}
+.key-locked{text-align:center;padding:26px 10px;}
+.key-locked .ico{font-size:2.4rem;margin-bottom:10px;}
+.key-locked h3{font-weight:700;margin-bottom:8px;}
+.key-locked p{color:var(--muted);font-size:.84rem;line-height:1.6;max-width:360px;margin:0 auto;}
+.vid-module-title{font-size:.78rem;font-weight:700;color:var(--accent);text-transform:uppercase;letter-spacing:.5px;margin:16px 0 8px;}
+.vid-module-title:first-child{margin-top:0;}
+.vid-item{display:flex;align-items:center;gap:12px;padding:12px;border:1px solid var(--border);border-radius:10px;margin-bottom:8px;cursor:pointer;background:#fff;transition:border-color .15s,box-shadow .15s;}
+.vid-item:hover{border-color:var(--accent);box-shadow:var(--shadow);}
+.vid-play{width:38px;height:38px;border-radius:50%;background:var(--accent);color:#fff;display:flex;align-items:center;justify-content:center;flex-shrink:0;font-size:.95rem;}
+.vid-title{font-weight:600;font-size:.86rem;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
+.vid-desc{font-size:.76rem;color:var(--muted);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
+
+/* ====== ADMIN ====== */
+#page-admin{padding-top:80px;min-height:100vh;}
+.admin-wrap{max-width:1100px;margin:0 auto;padding:0 4% 80px;}
+.admin-head{display:flex;align-items:flex-start;justify-content:space-between;flex-wrap:wrap;gap:14px;margin-bottom:26px;}
+.admin-head h2{font-family:'Space Grotesk',sans-serif;font-size:1.65rem;font-weight:700;}
+.admin-head p{font-size:.75rem;color:var(--green);font-weight:700;text-transform:uppercase;letter-spacing:.6px;margin-bottom:4px;}
+.stats-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(190px,1fr));gap:13px;margin-bottom:22px;}
+.stat-card{background:var(--surface);border:1px solid var(--border);border-radius:13px;padding:18px 20px;box-shadow:var(--shadow);position:relative;overflow:hidden;}
+.stat-card-ico{position:absolute;right:14px;top:12px;font-size:1.6rem;opacity:.12;}
+.stat-card-lbl{font-size:.72rem;color:var(--muted);text-transform:uppercase;letter-spacing:.5px;font-weight:600;margin-bottom:5px;}
+.stat-card-val{font-size:2rem;font-weight:700;font-family:'Space Grotesk',sans-serif;color:var(--text);}
+.tabs{display:flex;gap:0;border-bottom:1px solid var(--border);margin-bottom:20px;}
+.tab{background:none;border:none;padding:12px 18px;font-size:.87rem;font-weight:600;color:var(--muted);cursor:pointer;border-bottom:2.5px solid transparent;margin-bottom:-1px;transition:all .15s;}
+.tab:hover{color:var(--text);}
+.tab.active{color:var(--accent);border-bottom-color:var(--accent);}
+.toolbar{display:flex;gap:10px;align-items:center;flex-wrap:wrap;background:var(--surface);border:1px solid var(--border);border-radius:11px;padding:12px 16px;margin-bottom:16px;box-shadow:var(--shadow);}
+.toolbar input,.toolbar select{padding:9px 12px;border:1.5px solid var(--border);border-radius:8px;font-size:.84rem;background:#FAFAF8;color:var(--text);}
+.toolbar input{flex:1;min-width:180px;}
+.toolbar input:focus,.toolbar select:focus{outline:none;border-color:var(--accent);}
+.table-card{background:var(--surface);border:1px solid var(--border);border-radius:14px;box-shadow:var(--shadow);overflow:hidden;}
+.table-head{padding:16px 20px;border-bottom:1px solid var(--border);display:flex;justify-content:space-between;align-items:center;}
+.table-head span:first-child{font-weight:700;font-size:.9rem;}
+.table-head span:last-child{font-size:.78rem;color:var(--muted);}
+.tbl-scroll{overflow-x:auto;}
+table.tbl{width:100%;border-collapse:collapse;font-size:.84rem;min-width:650px;}
+.tbl th{text-align:left;padding:11px 16px;color:var(--muted);font-weight:600;font-size:.75rem;text-transform:uppercase;letter-spacing:.4px;border-bottom:1px solid var(--border);background:#FAFAF8;}
+.tbl td{padding:13px 16px;border-bottom:1px solid var(--border);vertical-align:middle;}
+.tbl tr:last-child td{border-bottom:none;}
+.tbl tr:hover td{background:#FAFAF8;}
+.avatar{width:34px;height:34px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:.82rem;font-weight:700;flex-shrink:0;}
+.cname{font-weight:600;font-size:.86rem;}
+.cemail{font-size:.76rem;color:var(--muted);}
+.admin-pill{font-size:.67rem;color:var(--accent);background:#EEEAFC;padding:1px 6px;border-radius:4px;font-weight:700;margin-left:5px;}
+.key-chip{font-family:'Space Grotesk',monospace;font-size:.78rem;color:#00724F;background:#D9F5EC;padding:4px 9px;border-radius:6px;cursor:pointer;filter:blur(5px);transition:filter .15s;display:inline-block;max-width:200px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;}
+.key-chip.revealed,.key-chip:hover{filter:none;}
+.cp-btn{background:#fff;border:1.5px solid var(--border);color:var(--muted);padding:5px 10px;border-radius:6px;font-size:.75rem;cursor:pointer;transition:all .15s;}
+.cp-btn:hover{border-color:var(--green);color:var(--green);}
+.key-none{color:#A8A8B0;font-size:.78rem;}
+.mod-group-title{padding:11px 16px;background:#FAFAF8;font-size:.78rem;font-weight:700;color:var(--text);border-bottom:1px solid var(--border);}
+.vid-row{display:flex;align-items:center;justify-content:space-between;padding:12px 16px;border-bottom:1px solid var(--border);gap:12px;}
+.vid-row:last-child{border-bottom:none;}
+.vid-row-ico{width:34px;height:34px;border-radius:8px;background:#EEEAFC;display:flex;align-items:center;justify-content:center;font-size:.95rem;flex-shrink:0;}
+
+/* ====== MODAL ====== */
+.overlay{display:none;position:fixed;inset:0;z-index:1000;background:rgba(20,18,28,.55);backdrop-filter:blur(3px);align-items:center;justify-content:center;padding:20px;}
+.overlay.open{display:flex;}
+.modal{background:var(--surface);border:1px solid var(--border);border-radius:18px;padding:32px;width:100%;max-width:420px;position:relative;box-shadow:0 20px 60px rgba(0,0,0,.16);}
+.modal-close{position:absolute;top:14px;right:14px;background:#F2F0EC;border:none;color:var(--muted);font-size:1rem;cursor:pointer;width:30px;height:30px;border-radius:50%;display:flex;align-items:center;justify-content:center;}
+.modal-close:hover{background:var(--border);color:var(--text);}
+.modal-title{font-family:'Space Grotesk',sans-serif;font-size:1.35rem;font-weight:700;margin-bottom:5px;color:var(--text);}
+.modal-sub{color:var(--muted);font-size:.84rem;margin-bottom:22px;line-height:1.5;}
+.form-group{margin-bottom:14px;}
+.form-label{display:block;font-size:.8rem;font-weight:600;margin-bottom:5px;color:var(--text);}
+.form-label-row{display:flex;justify-content:space-between;align-items:center;}
+.form-label-row a{color:var(--accent);cursor:pointer;font-weight:600;font-size:.78rem;text-decoration:none;}
+.form-label-row a:hover{text-decoration:underline;}
+.form-input{width:100%;padding:11px 13px;background:#FAFAF8;border:1.5px solid var(--border);border-radius:8px;color:var(--text);font-size:.88rem;transition:border-color .15s;}
+.form-input:focus{outline:none;border-color:var(--accent);background:#fff;}
+.form-input::placeholder{color:#B0AEA8;}
+.form-switch{text-align:center;margin-top:16px;font-size:.83rem;color:var(--muted);}
+.form-switch a{color:var(--accent);cursor:pointer;font-weight:600;text-decoration:none;}
+.form-switch a:hover{text-decoration:underline;}
+.alert{padding:10px 13px;border-radius:8px;font-size:.82rem;margin-bottom:12px;line-height:1.45;}
+.alert-error{background:#FDECEA;border:1px solid #F5C4C8;color:#B71C2B;}
+.alert-success{background:#E3F7EE;border:1px solid #B2E8CE;color:#00724F;}
+
+/* Player modal wide */
+.modal-wide{max-width:780px;padding:0;overflow:hidden;}
+.modal-close-abs{position:absolute;top:10px;right:10px;z-index:10;background:rgba(0,0,0,.5);border:none;color:#fff;font-size:1rem;cursor:pointer;width:32px;height:32px;border-radius:50%;display:flex;align-items:center;justify-content:center;}
+.modal-close-abs:hover{background:rgba(0,0,0,.75);}
+#player-container{background:#000;aspect-ratio:16/9;display:flex;align-items:center;justify-content:center;}
+#player-info{padding:16px 20px;}
+
+/* Upload progress */
+.progress-bar-wrap{background:var(--border);border-radius:100px;height:7px;overflow:hidden;margin-bottom:6px;}
+.progress-bar-fill{background:var(--accent);height:100%;width:0%;transition:width .3s;}
+
+/* Misc */
+.spinner{display:inline-block;width:18px;height:18px;border:2px solid #D5D3CC;border-top-color:var(--accent);border-radius:50%;animation:spin .7s linear infinite;vertical-align:middle;}
+@keyframes spin{to{transform:rotate(360deg);}}
+.empty{text-align:center;padding:44px 20px;color:var(--muted);font-size:.88rem;}
+.divider{height:1px;background:var(--border);margin:20px 0;}
+
+/* Upload form grid */
+.form-grid{display:grid;grid-template-columns:1fr 1fr;gap:12px;}
+@media(max-width:480px){.form-grid{grid-template-columns:1fr;}}
+
+/* Responsive */
+@media(max-width:600px){
+  .hero-stats{gap:28px;}
+  .hero-cta{flex-direction:column;align-items:center;}
+  .admin-head{flex-direction:column;}
+}
+</style>
+</head>
+<body>
+
+<!-- ====== NAV ====== -->
+<nav>
+  <div class="nav-logo" id="nav-logo">Web<span>Pro</span> Academy</div>
+  <div id="nav-actions">
+    <button class="btn btn-ghost btn-sm" type="button" id="btn-login">Connexion</button>
+    <button class="btn btn-primary btn-sm" type="button" id="btn-register">S'inscrire</button>
+  </div>
+</nav>
+
+<!-- ====== PAGE HOME ====== -->
+<div id="page-home" class="page active">
+  <div class="hero">
+    <div class="hero-badge"><span class="dot"></span>Formation 100% vidéo • Accès à vie</div>
+    <h1>Créez votre site web &<br><span class="c1">générez des revenus</span> <span class="c2">réels</span></h1>
+    <p>De zéro à votre premier client en ligne. La formation complète pour maîtriser la création de sites web et bâtir un revenu stable sur internet.</p>
+    <div class="hero-cta">
+      <button class="btn btn-primary btn-lg" type="button" id="btn-getformation">Obtenir la formation →</button>
+      <button class="btn btn-ghost btn-lg" type="button" id="btn-seeprog">Voir le programme</button>
+    </div>
+    <div class="hero-stats">
+      <div><div class="stat-num">12<em>+</em></div><div class="stat-lbl">Modules vidéo</div></div>
+      <div><div class="stat-num">8<em>h</em></div><div class="stat-lbl">De contenu</div></div>
+      <div><div class="stat-num">∞</div><div class="stat-lbl">Accès à vie</div></div>
+    </div>
+  </div>
+
+  <section class="wrap" id="section-modules">
+    <div class="center">
+      <div class="sec-tag">Programme</div>
+      <h2 class="sec-title">Ce que vous allez apprendre</h2>
+      <p class="sec-sub">Un parcours structuré de A à Z, des bases aux stratégies avancées de monétisation.</p>
+    </div>
+    <div class="modules-grid">
+      <div class="mod-card"><div class="mod-num">01</div><div class="mod-title">Les fondamentaux du web</div><div class="mod-desc">HTML, CSS, et les bases pour comprendre comment internet fonctionne réellement.</div><span class="mod-badge badge-v">📹 3 vidéos</span></div>
+      <div class="mod-card"><div class="mod-num">02</div><div class="mod-title">Créer son premier site</div><div class="mod-desc">De la maquette au site en ligne : hébergement, domaine, mise en ligne.</div><span class="mod-badge badge-v">📹 4 vidéos</span></div>
+      <div class="mod-card"><div class="mod-num">03</div><div class="mod-title">Design qui convertit</div><div class="mod-desc">Les principes du design orienté résultats. Pages qui attirent et retiennent.</div><span class="mod-badge badge-v">📹 3 vidéos</span></div>
+      <div class="mod-card"><div class="mod-num">04</div><div class="mod-title">Trouver ses premiers clients</div><div class="mod-desc">Stratégies concrètes pour décrocher vos premières missions ou ventes.</div><span class="mod-badge badge-v">📹 4 vidéos</span></div>
+      <div class="mod-card"><div class="mod-num">05</div><div class="mod-title">Monétiser avec l'affiliation</div><div class="mod-desc">Revenus passifs via l'affiliation : choisir, intégrer et promouvoir.</div><span class="mod-badge badge-v">📹 3 vidéos</span></div>
+      <div class="mod-card"><div class="mod-num">06</div><div class="mod-title">Automatiser &amp; scaler</div><div class="mod-desc">Outils pour vendre même quand vous dormez. Systèmes qui tournent seuls.</div><span class="mod-badge badge-b">⭐ Bonus</span></div>
+    </div>
+  </section>
+
+  <section class="wrap" id="section-how">
+    <div class="sec-tag">Processus</div>
+    <h2 class="sec-title">Comment ça marche ?</h2>
+    <p class="sec-sub">Simple, sécurisé, pensé pour un accès rapide.</p>
+    <div class="steps">
+      <div class="step"><div class="step-ico">👤</div><div><h4>Créez votre compte</h4><p>Inscrivez-vous gratuitement avec votre email. Votre espace est créé instantanément.</p></div></div>
+      <div class="step"><div class="step-ico">💳</div><div><h4>Effectuez votre paiement</h4><p>Contactez-nous via WhatsApp ou email pour procéder au règlement de 30 000 FCFA.</p></div></div>
+      <div class="step"><div class="step-ico">🔑</div><div><h4>Recevez votre clé d'accès</h4><p>Dès confirmation, votre clé privée unique est activée dans votre tableau de bord.</p></div></div>
+      <div class="step"><div class="step-ico">🎬</div><div><h4>Regardez les vidéos</h4><p>Utilisez votre espace pour accéder à la formation complète. Accès à vie garanti.</p></div></div>
+    </div>
+  </section>
+
+  <section class="wrap" id="section-pricing">
+    <div class="center">
+      <div class="sec-tag">Tarif</div>
+      <h2 class="sec-title">Un investissement rentable</h2>
+      <p class="sec-sub">Accès complet à toute la formation, pour toujours.</p>
+    </div>
+    <div class="price-card">
+      <span class="price-top">⭐ Accès complet</span>
+      <div style="color:var(--muted);font-size:.83rem;margin-top:6px">Formation WebPro Academy</div>
+      <div class="price-val"><sup>FCFA</sup>30.000</div>
+      <div class="price-period">Paiement unique • Accès à vie</div>
+      <ul class="price-features">
+        <li>12 modules vidéo HD</li>
+        <li>8h+ de contenu pratique</li>
+        <li>Accès à vie sans abonnement</li>
+        <li>Mises à jour incluses</li>
+        <li>Support par email</li>
+        <li>Clé d'accès privée sécurisée</li>
+      </ul>
+      <button class="btn btn-success btn-block btn-lg" type="button" id="btn-startnow">Commencer maintenant →</button>
+      <p style="text-align:center;margin-top:12px;font-size:.76rem;color:var(--muted)">Inscription → contact pour paiement → clé activée en moins de 24h</p>
+    </div>
+  </section>
+
+  <footer>
+    <p>© 2025 WebPro Academy • Tous droits réservés</p>
+    <p style="margin-top:6px">Contact : <a href="mailto:roodwilliam81@gmail.com">roodwilliam81@gmail.com</a></p>
+  </footer>
+</div>
+
+<!-- ====== PAGE DASHBOARD CLIENT ====== -->
+<div id="page-dashboard" class="page">
+  <div class="dash-wrap">
+    <div class="dash-header">
+      <h2>Mon espace formation</h2>
+      <p id="dash-email"> </p>
+    </div>
+
+    <div class="card">
+      <div class="card-title">Statut de mon accès</div>
+      <div id="dash-status"><div class="spinner"></div></div>
+    </div>
+
+    <div class="card">
+      <div class="card-title">Ma clé d'accès privée</div>
+      <div id="dash-key"><div class="spinner"></div></div>
+    </div>
+
+    <div class="card" id="dash-videos-card" style="display:none">
+      <div class="card-title">🎬 Mes vidéos de formation</div>
+      <div id="dash-videos"><div class="spinner"></div></div>
+    </div>
+
+    <div class="card" id="dash-payment-card">
+      <div class="card-title">Comment procéder au paiement</div>
+      <p style="color:var(--muted);font-size:.86rem;line-height:1.7">Contactez-nous avec votre adresse email d'inscription pour activer votre accès :</p>
+      <div style="margin-top:12px;display:flex;gap:10px;flex-wrap:wrap">
+        <a href="mailto:roodwilliam81@gmail.com?subject=Paiement%20Formation%20WebPro%20Academy" class="btn btn-primary btn-sm">📧 Email</a>
+        <a href="https://wa.me/22966000000" target="_blank" rel="noopener" class="btn btn-success btn-sm">💬 WhatsApp</a>
+      </div>
+      <p style="margin-top:10px;font-size:.78rem;color:var(--muted)">Montant : <strong style="color:var(--text)">30 000 FCFA</strong> • Activation en moins de 24h</p>
+    </div>
+
+    <div style="margin-top:8px">
+      <button class="btn btn-ghost btn-sm" type="button" id="btn-logout-dash">Se déconnecter</button>
+    </div>
+  </div>
+</div>
+
+<!-- ====== PAGE ADMIN ====== -->
+<div id="page-admin" class="page">
+  <div class="admin-wrap">
+    <div class="admin-head">
+      <div>
+        <p>● Admin · WebPro Academy</p>
+        <h2>Tableau de bord</h2>
+      </div>
+      <div style="display:flex;gap:10px;margin-top:4px">
+        <button class="btn btn-ghost btn-sm" type="button" id="btn-refresh">↻ Rafraîchir</button>
+        <button class="btn btn-danger btn-sm" type="button" id="btn-logout-admin">Déconnexion</button>
+      </div>
+    </div>
+
+    <div class="stats-grid">
+      <div class="stat-card"><div class="stat-card-ico">👥</div><div class="stat-card-lbl">Total inscrits</div><div class="stat-card-val" id="s-total">—</div></div>
+      <div class="stat-card"><div class="stat-card-ico">✅</div><div class="stat-card-lbl">Accès activés</div><div class="stat-card-val" id="s-active" style="color:#00724F">—</div></div>
+      <div class="stat-card"><div class="stat-card-ico">⏳</div><div class="stat-card-lbl">En attente</div><div class="stat-card-val" id="s-pending" style="color:#A36500">—</div></div>
+      <div class="stat-card"><div class="stat-card-ico">💰</div><div class="stat-card-lbl">Revenus estimés</div><div class="stat-card-val" id="s-revenue" style="color:var(--accent)">—</div></div>
+    </div>
+
+    <div class="tabs">
+      <button class="tab active" type="button" id="tab-clients">👥 Clients</button>
+      <button class="tab" type="button" id="tab-videos">🎬 Vidéos</button>
+    </div>
+
+    <!-- TAB CLIENTS -->
+    <div id="panel-clients">
+      <div class="toolbar">
+        <input type="text" id="search-input" placeholder="🔍 Rechercher par nom ou email..."/>
+        <select id="filter-select">
+          <option value="all">Tous les clients</option>
+          <option value="pending">En attente</option>
+          <option value="active">Activés</option>
+        </select>
+      </div>
+      <div class="table-card">
+        <div class="table-head"><span>Liste des clients</span><span id="clients-count"></span></div>
+        <div class="tbl-scroll" id="clients-container"><div class="empty"><div class="spinner"></div></div></div>
+      </div>
+    </div>
+
+    <!-- TAB VIDEOS -->
+    <div id="panel-videos" style="display:none">
+      <div class="card" style="margin-bottom:16px">
+        <div class="card-title">📤 Ajouter une vidéo</div>
+        <div id="upload-alert"></div>
+        <div style="background:#F0F7FF;border:1px solid #C7DEFF;border-radius:10px;padding:14px;margin-bottom:14px;font-size:.83rem;color:#1A4A8A;line-height:1.6">
+          <strong>📌 Comment ajouter une vidéo :</strong><br>
+          1. Allez sur <strong>YouTube Studio</strong> → uploadez votre vidéo<br>
+          2. Visibilité → <strong>"Non répertorié"</strong> (pas public, pas indexé)<br>
+          3. Copiez le lien et collez-le ci-dessous
+        </div>
+        <div class="form-grid">
+          <div class="form-group"><label class="form-label">N° Module</label><input type="number" id="v-module" class="form-input" placeholder="1" min="1"/></div>
+          <div class="form-group"><label class="form-label">Ordre</label><input type="number" id="v-order" class="form-input" placeholder="1" min="1" value="1"/></div>
+        </div>
+        <div class="form-group"><label class="form-label">Titre de la vidéo</label><input type="text" id="v-title" class="form-input" placeholder="Ex: Introduction au HTML"/></div>
+        <div class="form-group"><label class="form-label">Description (optionnel)</label><input type="text" id="v-desc" class="form-input" placeholder="Courte description du contenu"/></div>
+        <div class="form-group">
+          <label class="form-label">Lien YouTube de la vidéo</label>
+          <input type="url" id="v-youtube" class="form-input" placeholder="https://www.youtube.com/watch?v=XXXXXXXX"/>
+          <p style="font-size:.74rem;color:var(--muted);margin-top:4px">Collez le lien YouTube "Non répertorié" ici</p>
+        </div>
+        <button class="btn btn-primary btn-block" type="button" id="btn-upload">✅ Ajouter la vidéo</button>
+      </div>
+      <div class="table-card">
+        <div class="table-head"><span>Vidéos publiées</span><span id="videos-count"></span></div>
+        <div id="videos-container"><div class="empty"><div class="spinner"></div></div></div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ====== MODAL AUTH ====== -->
+<div class="overlay" id="overlay-auth">
+  <div class="modal">
+    <button class="modal-close" type="button" id="btn-close-auth">✕</button>
+
+    <!-- LOGIN PANEL -->
+    <div id="panel-login">
+      <div class="modal-title">Bon retour 👋</div>
+      <div class="modal-sub">Connectez-vous à votre espace formation</div>
+      <div id="login-alert"></div>
+      <div class="form-group"><label class="form-label">Email</label><input type="email" id="f-email" class="form-input" placeholder="votre@email.com" autocomplete="email"/></div>
+      <div class="form-group">
+        <div class="form-label-row">
+          <label class="form-label" style="margin:0">Mot de passe</label>
+          <a id="link-forgot">Mot de passe oublié ?</a>
+        </div>
+        <input type="password" id="f-pass" class="form-input" placeholder="••••••••" autocomplete="current-password" style="margin-top:5px"/>
+      </div>
+      <button class="btn btn-primary btn-block" type="button" id="btn-do-login">Se connecter</button>
+      <div class="form-switch">Pas encore de compte ? <a id="link-to-register">S'inscrire gratuitement</a></div>
+    </div>
+
+    <!-- REGISTER PANEL -->
+    <div id="panel-register" style="display:none">
+      <div class="modal-title">Créer mon compte</div>
+      <div class="modal-sub">Gratuit • Accès à votre espace en secondes</div>
+      <div id="register-alert"></div>
+      <div class="form-group"><label class="form-label">Nom complet</label><input type="text" id="r-name" class="form-input" placeholder="Jean Dupont" autocomplete="name"/></div>
+      <div class="form-group"><label class="form-label">Email</label><input type="email" id="r-email" class="form-input" placeholder="votre@email.com" autocomplete="email"/></div>
+      <div class="form-group"><label class="form-label">Mot de passe</label><input type="password" id="r-pass" class="form-input" placeholder="Minimum 6 caractères" autocomplete="new-password"/></div>
+      <button class="btn btn-primary btn-block" type="button" id="btn-do-register">Créer mon compte →</button>
+      <div class="form-switch">Déjà inscrit ? <a id="link-to-login">Se connecter</a></div>
+    </div>
+
+    <!-- FORGOT PANEL -->
+    <div id="panel-forgot" style="display:none">
+      <div class="modal-title">Mot de passe oublié 🔑</div>
+      <div class="modal-sub">Entrez votre email pour recevoir un lien de réinitialisation.</div>
+      <div id="forgot-alert"></div>
+      <div class="form-group"><label class="form-label">Email</label><input type="email" id="fg-email" class="form-input" placeholder="votre@email.com" autocomplete="email"/></div>
+      <button class="btn btn-primary btn-block" type="button" id="btn-do-forgot">Envoyer le lien</button>
+      <div class="form-switch"><a id="link-back-login">← Retour à la connexion</a></div>
+      <div class="divider"></div>
+      <p style="font-size:.76rem;color:var(--muted);line-height:1.6">Vous ne recevez pas l'email ? Contactez directement : <a href="mailto:roodwilliam81@gmail.com?subject=Mot%20de%20passe%20oublié" style="color:var(--accent)">roodwilliam81@gmail.com</a></p>
+    </div>
+
+    <!-- RESET PANEL -->
+    <div id="panel-reset" style="display:none">
+      <div class="modal-title">Nouveau mot de passe 🔐</div>
+      <div class="modal-sub">Choisissez votre nouveau mot de passe.</div>
+      <div id="reset-alert"></div>
+      <div class="form-group"><label class="form-label">Nouveau mot de passe</label><input type="password" id="rs-pass" class="form-input" placeholder="Minimum 6 caractères" autocomplete="new-password"/></div>
+      <button class="btn btn-primary btn-block" type="button" id="btn-do-reset">Mettre à jour</button>
+    </div>
+  </div>
+</div>
+
+<!-- ====== MODAL ACTIVATE ====== -->
+<div class="overlay" id="overlay-activate">
+  <div class="modal" style="max-width:400px">
+    <button class="modal-close" type="button" id="btn-close-activate">✕</button>
+    <div style="font-size:1.8rem;margin-bottom:10px">🔑</div>
+    <div class="modal-title">Activer l'accès</div>
+    <div class="modal-sub" id="activate-sub">Générer une clé unique pour ce client ?</div>
+    <div id="activate-result" style="display:none;margin:14px 0">
+      <div style="background:#E3F7EE;border:1px solid #B2E8CE;border-radius:9px;padding:14px">
+        <div style="font-size:.74rem;color:#00724F;margin-bottom:6px;font-weight:700">CLÉ GÉNÉRÉE</div>
+        <div id="activate-key" style="font-family:'Space Grotesk',sans-serif;font-size:1rem;font-weight:700;color:#00724F;letter-spacing:1.5px;word-break:break-all"></div>
+        <button class="cp-btn" type="button" id="btn-copy-key" style="margin-top:8px">📋 Copier la clé</button>
+      </div>
+      <p style="font-size:.76rem;color:var(--muted);margin-top:8px">Visible dans le tableau de bord du client.</p>
+    </div>
+    <div id="activate-actions">
+      <button class="btn btn-success btn-block" type="button" id="btn-confirm-activate">✅ Confirmer l'activation</button>
+      <button class="btn btn-ghost btn-block" type="button" id="btn-cancel-activate" style="margin-top:8px">Annuler</button>
+    </div>
+    <div id="activate-done" style="display:none">
+      <button class="btn btn-primary btn-block" type="button" id="btn-close-activate-done">Fermer</button>
+    </div>
+  </div>
+</div>
+
+<!-- ====== MODAL VIDEO PLAYER ====== -->
+<div class="overlay" id="overlay-player">
+  <div class="modal modal-wide" style="max-width:780px;position:relative">
+    <button class="modal-close-abs" type="button" id="btn-close-player">✕</button>
+    <div id="player-container"><div class="spinner" style="border-top-color:#fff;border-color:#444"></div></div>
+    <div id="player-info">
+      <div id="player-title" style="font-weight:700;font-size:.95rem"></div>
+      <div id="player-desc" style="font-size:.82rem;color:var(--muted);margin-top:3px"></div>
+    </div>
+  </div>
+</div>
+
+<script>
+(function() {
+  'use strict';
+
+  /* ===== CONFIG ===== */
+  const SUPA_URL = 'https://dazuuzibqtmuybppjstd.supabase.co';
+  const SUPA_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImRhenV1emlicXRtdXlicHBqc3RkIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODI3MzQyMDgsImV4cCI6MjA5ODMxMDIwOH0.GpRwNoeGq_Q-hPMF0_fsP46zwhDQjxEN_izGzqRFMLY';
+  const ADMIN_EMAIL = 'roodwilliam81@gmail.com';
+
+  const sb = supabase.createClient(SUPA_URL, SUPA_KEY);
+  let currentUser = null;
+  let allProfiles = [];
+  let pendingActivateId = null;
+  let lastKey = '';
+
+  /* ===== INIT ===== */
+  async function init() {
+    sb.auth.onAuthStateChange(async function(event, session) {
+      if (event === 'PASSWORD_RECOVERY') {
+        showAuth('reset');
+        return;
+      }
+      if (session) {
+        currentUser = session.user;
+        closeAuth();
+        await afterLogin();
+      } else {
+        currentUser = null;
+        showPage('home');
+        renderNav(false);
+      }
+    });
+    const { data: { session } } = await sb.auth.getSession();
+    if (session) {
+      currentUser = session.user;
+      await afterLogin();
+    }
+  }
+
+  async function afterLogin() {
+    renderNav(true);
+    if (currentUser.email === ADMIN_EMAIL) {
+      showPage('admin');
+      loadClients();
+    } else {
+      showPage('dashboard');
+      loadDashboard();
+    }
+  }
+
+  /* ===== PAGE ROUTING ===== */
+  function showPage(name) {
+    document.querySelectorAll('.page').forEach(function(p){ p.classList.remove('active'); });
+    document.getElementById('page-' + name).classList.add('active');
+    window.scrollTo(0, 0);
+  }
+
+  function renderNav(loggedIn) {
+    var nav = document.getElementById('nav-actions');
+    if (loggedIn) {
+      nav.innerHTML =
+        '<span style="font-size:.8rem;color:var(--muted);margin-right:4px">' + esc(currentUser.email) + '</span>' +
+        (currentUser.email === ADMIN_EMAIL
+          ? '<button class="btn btn-ghost btn-sm" type="button" id="nav-btn-admin">Admin</button>'
+          : '') +
+        '<button class="btn btn-ghost btn-sm" type="button" id="nav-btn-logout">Déconnexion</button>';
+      var logoutBtn = document.getElementById('nav-btn-logout');
+      if (logoutBtn) logoutBtn.addEventListener('click', doLogout);
+      var adminBtn = document.getElementById('nav-btn-admin');
+      if (adminBtn) adminBtn.addEventListener('click', function(){ showPage('admin'); loadClients(); });
+    } else {
+      nav.innerHTML =
+        '<button class="btn btn-ghost btn-sm" type="button" id="nav-btn-login">Connexion</button>' +
+        '<button class="btn btn-primary btn-sm" type="button" id="nav-btn-register">S\'inscrire</button>';
+      document.getElementById('nav-btn-login').addEventListener('click', function(){ openAuth('login'); });
+      document.getElementById('nav-btn-register').addEventListener('click', function(){ openAuth('register'); });
+    }
+  }
+
+  /* ===== DASHBOARD CLIENT ===== */
+  async function loadDashboard() {
+    document.getElementById('dash-email').textContent = currentUser.email;
+    var statusEl = document.getElementById('dash-status');
+    var keyEl = document.getElementById('dash-key');
+
+    var resp = await sb.from('profiles').select('*').eq('id', currentUser.id).single();
+    if (resp.error || !resp.data) {
+      statusEl.innerHTML = '<p style="color:var(--danger);font-size:.84rem">Erreur de chargement du profil.</p>';
+      return;
+    }
+    var p = resp.data;
+
+    if (p.is_activated && p.private_key) {
+      statusEl.innerHTML = '<span class="status-badge s-active">✓ Accès activé</span> <span style="color:var(--muted);font-size:.82rem;margin-left:6px">Votre formation est déverrouillée</span>';
+      keyEl.innerHTML =
+        '<p style="font-size:.83rem;color:var(--muted);margin-bottom:12px">Voici votre clé d\'accès privée. Gardez-la précieusement.</p>' +
+        '<div class="key-box"><div class="key-val">' + esc(p.private_key) + '</div>' +
+        '<button class="cp-btn" type="button" id="dash-copy-key">📋 Copier</button></div>' +
+        '<p style="font-size:.76rem;color:var(--muted);margin-top:10px">Cette clé est unique et personnelle. Ne la partagez jamais.</p>';
+      document.getElementById('dash-copy-key').addEventListener('click', function() {
+        copyText(p.private_key, this);
+      });
+      document.getElementById('dash-videos-card').style.display = 'block';
+      document.getElementById('dash-payment-card').style.display = 'none';
+      loadClientVideos();
+    } else {
+      statusEl.innerHTML = '<span class="status-badge s-pending">⏳ En attente de paiement</span> <span style="color:var(--muted);font-size:.82rem;margin-left:6px">Votre clé sera activée après confirmation</span>';
+      keyEl.innerHTML =
+        '<div class="key-locked"><div class="ico">🔒</div><h3>Clé non encore attribuée</h3>' +
+        '<p>Procédez au paiement de <strong style="color:var(--text)">30 000 FCFA</strong> et votre clé sera activée dans les 24h.</p></div>';
+      document.getElementById('dash-videos-card').style.display = 'none';
+      document.getElementById('dash-payment-card').style.display = 'block';
+    }
+  }
+
+  async function loadClientVideos() {
+    var el = document.getElementById('dash-videos');
+    el.innerHTML = '<div class="spinner"></div>';
+    var resp = await sb.from('videos').select('*').order('module_number').order('order_index');
+    if (resp.error) { el.innerHTML = '<p style="color:var(--danger);font-size:.83rem">Erreur: ' + esc(resp.error.message) + '</p>'; return; }
+    if (!resp.data || !resp.data.length) {
+      el.innerHTML = '<p style="color:var(--muted);font-size:.84rem;text-align:center;padding:18px">Aucune vidéo disponible pour l\'instant. Revenez bientôt !</p>';
+      return;
+    }
+    var grouped = {};
+    resp.data.forEach(function(v){ if(!grouped[v.module_number]) grouped[v.module_number]=[]; grouped[v.module_number].push(v); });
+    var html = '';
+    Object.keys(grouped).sort(function(a,b){return a-b;}).forEach(function(m){
+      html += '<div class="vid-module-title">Module ' + m + '</div>';
+      grouped[m].forEach(function(v){
+        html += '<div class="vid-item" data-id="' + esc(v.id) + '" data-title="' + esc(v.title) + '" data-desc="' + esc(v.description||'') + '">' +
+          '<div class="vid-play">▶</div>' +
+          '<div style="min-width:0"><div class="vid-title">' + esc(v.title) + '</div>' +
+          (v.description ? '<div class="vid-desc">' + esc(v.description) + '</div>' : '') +
+          '</div></div>';
+      });
+    });
+    el.innerHTML = html;
+    el.querySelectorAll('.vid-item').forEach(function(item){
+      item.addEventListener('click', function(){ playVideo(item.dataset.id, item.dataset.title, item.dataset.desc); });
+    });
+  }
+
+  async function playVideo(id, title, desc) {
+    document.getElementById('overlay-player').classList.add('open');
+    document.getElementById('player-title').textContent = title;
+    document.getElementById('player-desc').textContent = desc || '';
+    var cont = document.getElementById('player-container');
+    cont.innerHTML = '<div class="spinner" style="border-top-color:#fff;border-color:#444"></div>';
+
+    var row = await sb.from('videos').select('youtube_url, storage_path').eq('id', id).single();
+    if (row.error || !row.data) { cont.innerHTML = '<p style="color:#fff;font-size:.83rem;padding:20px">Erreur de chargement.</p>'; return; }
+
+    if (row.data.youtube_url) {
+      // Extraire le video ID YouTube depuis différents formats d'URL
+      var ytUrl = row.data.youtube_url;
+      var videoId = '';
+      var m = ytUrl.match(/(?:youtube\.com\/watch\?v=|youtu\.be\/|youtube\.com\/embed\/)([^&\s?]+)/);
+      if (m) videoId = m[1];
+      if (!videoId) { cont.innerHTML = '<p style="color:#fff;font-size:.83rem;padding:20px">URL YouTube invalide.</p>'; return; }
+      // Iframe embarqué — pas de bouton télécharger, pas de suggestions YouTube
+      cont.innerHTML = '<iframe src="https://www.youtube.com/embed/' + videoId + '?autoplay=1&rel=0&modestbranding=1&fs=1" frameborder="0" allow="autoplay;encrypted-media;fullscreen" allowfullscreen style="width:100%;height:100%;"></iframe>';
+    } else if (row.data.storage_path) {
+      var signed = await sb.storage.from('formation-videos').createSignedUrl(row.data.storage_path, 600);
+      if (signed.error || !signed.data) { cont.innerHTML = '<p style="color:#fff;font-size:.83rem;padding:20px">Impossible de lire la vidéo.</p>'; return; }
+      cont.innerHTML = '<video src="' + signed.data.signedUrl + '" controls controlsList="nodownload noremoteplayback" disablePictureInPicture oncontextmenu="return false" style="width:100%;height:100%;outline:none" autoplay></video>';
+    } else {
+      cont.innerHTML = '<p style="color:#fff;font-size:.83rem;padding:20px">Aucune source vidéo disponible.</p>';
+    }
+  }
+
+  function closePlayer() {
+    document.getElementById('overlay-player').classList.remove('open');
+    document.getElementById('player-container').innerHTML = '';
+  }
+
+  /* ===== ADMIN — CLIENTS ===== */
+  async function loadClients() {
+    var btn = document.getElementById('btn-refresh');
+    if (btn) { btn.disabled = true; btn.textContent = '↻ Chargement...'; }
+    document.getElementById('clients-container').innerHTML = '<div class="empty"><div class="spinner"></div></div>';
+
+    var resp = await sb.from('profiles').select('*').order('created_at', { ascending: false });
+
+    if (btn) { btn.disabled = false; btn.textContent = '↻ Rafraîchir'; }
+
+    if (resp.error) {
+      document.getElementById('clients-container').innerHTML = '<div class="empty" style="color:var(--danger)">❌ ' + esc(resp.error.message) + '</div>';
+      return;
+    }
+    allProfiles = resp.data || [];
+    updateStats();
+    renderClients(allProfiles);
+  }
+
+  function updateStats() {
+    var total = allProfiles.length;
+    var active = allProfiles.filter(function(p){ return p.is_activated; }).length;
+    document.getElementById('s-total').textContent = total;
+    document.getElementById('s-active').textContent = active;
+    document.getElementById('s-pending').textContent = total - active;
+    document.getElementById('s-revenue').textContent = (active * 30000).toLocaleString('fr-FR') + ' F';
+  }
+
+  function filterClients() {
+    var q = (document.getElementById('search-input').value || '').toLowerCase();
+    var f = document.getElementById('filter-select').value;
+    renderClients(allProfiles.filter(function(p){
+      var ms = !q || (p.full_name||'').toLowerCase().includes(q) || (p.email||'').toLowerCase().includes(q);
+      var mf = f === 'all' || (f === 'active' && p.is_activated) || (f === 'pending' && !p.is_activated);
+      return ms && mf;
+    }));
+  }
+
+  function renderClients(list) {
+    document.getElementById('clients-count').textContent = list.length + ' client' + (list.length > 1 ? 's' : '');
+    if (!list.length) { document.getElementById('clients-container').innerHTML = '<div class="empty">Aucun client trouvé.</div>'; return; }
+
+    var rows = list.map(function(p){
+      var isAdmin = p.email === ADMIN_EMAIL;
+      var init = (p.full_name || p.email || '?')[0].toUpperCase();
+      var avBg = p.is_activated ? '#D9F5EC' : '#F0EFEC';
+      var avCo = p.is_activated ? '#00724F' : '#888';
+      var statusHtml = p.is_activated
+        ? '<span class="status-badge s-active" style="font-size:.72rem">✓ Activé</span>'
+        : '<span class="status-badge s-pending" style="font-size:.72rem">⏳ Attente</span>';
+      var keyHtml = p.private_key
+        ? '<span class="key-chip" title="Cliquer pour révéler">' + esc(p.private_key) + '</span> <button class="cp-btn" data-key="' + esc(p.private_key) + '" title="Copier" style="padding:3px 7px">📋</button>'
+        : '<span class="key-none">Non générée</span>';
+      var dt = new Date(p.created_at);
+      var date = dt.toLocaleDateString('fr-FR', {day:'2-digit',month:'short'});
+      var actionHtml = isAdmin ? '<span style="color:var(--muted);font-size:.75rem">—</span>'
+        : !p.is_activated
+          ? '<button class="btn btn-success btn-sm activate-btn" data-id="' + p.id + '" data-email="' + esc(p.email) + '" data-name="' + esc(p.full_name||'') + '">🔑 Activer</button>'
+          : '<button class="btn btn-danger btn-sm revoke-btn" data-id="' + p.id + '" data-email="' + esc(p.email) + '">✕ Révoquer</button>';
+      return '<tr>' +
+        '<td><div style="display:flex;align-items:center;gap:10px">' +
+        '<div class="avatar" style="background:' + avBg + ';color:' + avCo + '">' + init + '</div>' +
+        '<div><div class="cname">' + esc(p.full_name || '') + (isAdmin ? '<span class="admin-pill">ADMIN</span>' : '') + '</div>' +
+        '<div class="cemail">' + esc(p.email) + '</div></div></div></td>' +
+        '<td>' + statusHtml + '</td>' +
+        '<td>' + keyHtml + '</td>' +
+        '<td style="font-size:.76rem;color:var(--muted)">' + date + '</td>' +
+        '<td>' + actionHtml + '</td></tr>';
+    }).join('');
+
+    document.getElementById('clients-container').innerHTML =
+      '<table class="tbl"><thead><tr><th>Client</th><th>Statut</th><th>Clé privée</th><th>Date</th><th>Action</th></tr></thead><tbody>' + rows + '</tbody></table>' +
+      '<div style="padding:10px 16px;font-size:.72rem;color:var(--muted);border-top:1px solid var(--border)">💡 Cliquez sur une clé pour la révéler · 📋 pour la copier</div>';
+
+    // Attach events
+    document.querySelectorAll('.activate-btn').forEach(function(b){
+      b.addEventListener('click', function(){ openActivate(b.dataset.id, b.dataset.email, b.dataset.name); });
+    });
+    document.querySelectorAll('.revoke-btn').forEach(function(b){
+      b.addEventListener('click', function(){ revokeUser(b.dataset.id, b.dataset.email); });
+    });
+    document.querySelectorAll('.key-chip').forEach(function(chip){
+      chip.addEventListener('click', function(){ chip.classList.add('revealed'); });
+    });
+    document.querySelectorAll('[data-key]').forEach(function(b){
+      b.addEventListener('click', function(e){
+        e.stopPropagation();
+        copyText(b.dataset.key, b);
+        b.textContent = '✓';
+        setTimeout(function(){ b.textContent = '📋'; }, 1500);
+      });
+    });
+  }
+
+  /* ===== ADMIN — ACTIVATE / REVOKE ===== */
+  function openActivate(id, email, name) {
+    pendingActivateId = id;
+    document.getElementById('activate-sub').textContent = 'Générer une clé unique pour ' + (name || email) + ' ?';
+    document.getElementById('activate-result').style.display = 'none';
+    document.getElementById('activate-actions').style.display = 'block';
+    document.getElementById('activate-done').style.display = 'none';
+    document.getElementById('overlay-activate').classList.add('open');
+  }
+
+  function closeActivate() {
+    document.getElementById('overlay-activate').classList.remove('open');
+    pendingActivateId = null;
+  }
+
+  async function confirmActivate() {
+    if (!pendingActivateId) return;
+    var btn = document.getElementById('btn-confirm-activate');
+    btn.disabled = true; btn.innerHTML = '<span class="spinner"></span> Génération...';
+
+    var resp = await sb.rpc('generate_private_key', { user_id: pendingActivateId });
+
+    btn.disabled = false; btn.textContent = '✅ Confirmer l\'activation';
+
+    if (resp.error) {
+      document.getElementById('activate-sub').innerHTML = '<span style="color:var(--danger)">❌ ' + esc(resp.error.message) + '</span>';
+      return;
+    }
+    lastKey = resp.data;
+    document.getElementById('activate-key').textContent = resp.data;
+    document.getElementById('activate-result').style.display = 'block';
+    document.getElementById('activate-actions').style.display = 'none';
+    document.getElementById('activate-done').style.display = 'block';
+    document.getElementById('activate-sub').textContent = 'Accès activé avec succès !';
+    loadClients();
+  }
+
+  async function revokeUser(id, email) {
+    if (!confirm('Révoquer l\'accès de ' + email + ' ?\nLeur clé sera supprimée.')) return;
+    var resp = await sb.from('profiles').update({ is_activated: false, private_key: null, updated_at: new Date().toISOString() }).eq('id', id);
+    if (resp.error) { alert('Erreur: ' + resp.error.message); return; }
+    loadClients();
+  }
+
+  /* ===== ADMIN — VIDEOS ===== */
+  async function loadAdminVideos() {
+    document.getElementById('videos-container').innerHTML = '<div class="empty"><div class="spinner"></div></div>';
+    var resp = await sb.from('videos').select('*').order('module_number').order('order_index');
+    if (resp.error) { document.getElementById('videos-container').innerHTML = '<div class="empty" style="color:var(--danger)">❌ ' + esc(resp.error.message) + '</div>'; return; }
+    document.getElementById('videos-count').textContent = (resp.data || []).length + ' vidéo(s)';
+    if (!resp.data || !resp.data.length) { document.getElementById('videos-container').innerHTML = '<div class="empty">Aucune vidéo téléversée.</div>'; return; }
+    var grouped = {};
+    resp.data.forEach(function(v){ if(!grouped[v.module_number]) grouped[v.module_number]=[]; grouped[v.module_number].push(v); });
+    var html = '';
+    Object.keys(grouped).sort(function(a,b){return a-b;}).forEach(function(m){
+      html += '<div class="mod-group-title">Module ' + m + '</div>';
+      grouped[m].forEach(function(v){
+        html += '<div class="vid-row"><div style="display:flex;align-items:center;gap:10px;min-width:0">' +
+          '<div class="vid-row-ico">🎬</div>' +
+          '<div style="min-width:0"><div style="font-weight:600;font-size:.86rem;white-space:nowrap;overflow:hidden;text-overflow:ellipsis">' + esc(v.title) + '</div>' +
+          (v.description ? '<div style="font-size:.76rem;color:var(--muted)">' + esc(v.description) + '</div>' : '') +
+          '</div></div>' +
+          '<button class="btn btn-danger btn-sm" type="button" data-vid-id="' + v.id + '">🗑</button></div>';
+      });
+    });
+    document.getElementById('videos-container').innerHTML = html;
+    document.querySelectorAll('[data-vid-id]').forEach(function(b){
+      b.addEventListener('click', function(){ deleteVideo(b.dataset.vidId); });
+    });
+  }
+
+  async function uploadVideo() {
+    var moduleNum = document.getElementById('v-module').value;
+    var orderIdx = document.getElementById('v-order').value || '1';
+    var title = document.getElementById('v-title').value.trim();
+    var desc = document.getElementById('v-desc').value.trim();
+    var ytUrl = document.getElementById('v-youtube').value.trim();
+    var alertEl = document.getElementById('upload-alert');
+    var btn = document.getElementById('btn-upload');
+
+    if (!moduleNum || !title || !ytUrl) {
+      showAlert(alertEl, '❌ Veuillez remplir le module, le titre et le lien YouTube.', 'error');
+      return;
+    }
+
+    // Valider que c'est bien une URL YouTube
+    if (!ytUrl.match(/youtube\.com|youtu\.be/)) {
+      showAlert(alertEl, '❌ Le lien ne semble pas être une URL YouTube valide.', 'error');
+      return;
+    }
+
+    btn.disabled = true; btn.textContent = '⏳ Ajout...';
+    alertEl.innerHTML = '';
+
+    var ins = await sb.from('videos').insert({
+      module_number: parseInt(moduleNum),
+      order_index: parseInt(orderIdx),
+      title: title,
+      description: desc || null,
+      youtube_url: ytUrl,
+      storage_path: null
+    });
+
+    btn.disabled = false; btn.textContent = '✅ Ajouter la vidéo';
+
+    if (ins.error) {
+      showAlert(alertEl, '❌ Erreur: ' + esc(ins.error.message), 'error');
+      return;
+    }
+
+    showAlert(alertEl, '✅ Vidéo ajoutée avec succès !', 'success');
+    document.getElementById('v-module').value = '';
+    document.getElementById('v-order').value = '1';
+    document.getElementById('v-title').value = '';
+    document.getElementById('v-desc').value = '';
+    document.getElementById('v-youtube').value = '';
+    loadAdminVideos();
+  }
+
+  async function deleteVideo(id) {
+    if (!confirm('Supprimer définitivement cette vidéo ?')) return;
+    var r = await sb.from('videos').delete().eq('id', id);
+    if (r.error) { alert('Erreur: ' + r.error.message); return; }
+    loadAdminVideos();
+  }
+
+  /* ===== AUTH MODAL ===== */
+  function openAuth(panel) {
+    document.getElementById('overlay-auth').classList.add('open');
+    switchPanel(panel);
+  }
+
+  function closeAuth() {
+    document.getElementById('overlay-auth').classList.remove('open');
+    // Re-enable all auth buttons
+    ['btn-do-login','btn-do-register','btn-do-forgot','btn-do-reset'].forEach(function(id){
+      var el = document.getElementById(id);
+      if (el) { el.disabled = false; }
+    });
+  }
+
+  function switchPanel(name) {
+    ['login','register','forgot','reset'].forEach(function(p){
+      document.getElementById('panel-' + p).style.display = p === name ? 'block' : 'none';
+    });
+    ['login-alert','register-alert','forgot-alert','reset-alert'].forEach(function(id){
+      var el = document.getElementById(id);
+      if (el) el.innerHTML = '';
+    });
+  }
+
+  function showAuth(panel) {
+    openAuth(panel);
+  }
+
+  async function doLogin() {
+    var email = document.getElementById('f-email').value.trim();
+    var pass = document.getElementById('f-pass').value;
+    var alertEl = document.getElementById('login-alert');
+    var btn = document.getElementById('btn-do-login');
+    if (!email || !pass) { showAlert(alertEl, '❌ Veuillez remplir tous les champs.', 'error'); return; }
+    btn.disabled = true; showAlert(alertEl, '<span class="spinner"></span> Connexion...', 'success');
+    var resp = await sb.auth.signInWithPassword({ email: email, password: pass });
+    if (resp.error) {
+      btn.disabled = false;
+      var msg = resp.error.message.includes('Invalid login') ? 'Email ou mot de passe incorrect.' : resp.error.message;
+      showAlert(alertEl, '❌ ' + msg, 'error');
+    }
+    // On success: onAuthStateChange fires, closeAuth + afterLogin called automatically
+  }
+
+  async function doRegister() {
+    var name = document.getElementById('r-name').value.trim();
+    var email = document.getElementById('r-email').value.trim();
+    var pass = document.getElementById('r-pass').value;
+    var alertEl = document.getElementById('register-alert');
+    var btn = document.getElementById('btn-do-register');
+    if (!name || !email || !pass) { showAlert(alertEl, '❌ Veuillez remplir tous les champs.', 'error'); return; }
+    if (pass.length < 6) { showAlert(alertEl, '❌ Le mot de passe doit faire au moins 6 caractères.', 'error'); return; }
+    btn.disabled = true; showAlert(alertEl, '<span class="spinner"></span> Création du compte...', 'success');
+    var resp = await sb.auth.signUp({ email: email, password: pass, options: { data: { full_name: name } } });
+    if (resp.error) {
+      btn.disabled = false;
+      var msg = resp.error.message;
+      if (msg.includes('rate limit') || msg.includes('Email rate')) {
+        // Try auto-login (works if "Confirm email" is disabled in Supabase)
+        showAlert(alertEl, '<span class="spinner"></span> Finalisation...', 'success');
+        var lr = await sb.auth.signInWithPassword({ email: email, password: pass });
+        if (lr.error) { btn.disabled = false; showAlert(alertEl, '⚠️ Limite d\'emails atteinte. Réessayez dans 1h ou contactez l\'admin.', 'error'); }
+      } else if (msg.includes('already registered')) {
+        btn.disabled = false;
+        showAlert(alertEl, '⚠️ Email déjà utilisé. <a id="link-goto-login" style="color:var(--accent);cursor:pointer;font-weight:600">Se connecter</a>.', 'error');
+        setTimeout(function(){ var l = document.getElementById('link-goto-login'); if(l) l.addEventListener('click', function(){ switchPanel('login'); }); }, 50);
+      } else {
+        btn.disabled = false; showAlert(alertEl, '❌ ' + msg, 'error');
+      }
+      return;
+    }
+    if (resp.data && resp.data.session) {
+      // Session created immediately (email confirm off)
+      showAlert(alertEl, '✅ Compte créé ! Redirection...', 'success');
+    } else {
+      // Try to sign in now
+      showAlert(alertEl, '<span class="spinner"></span> Connexion automatique...', 'success');
+      var lr2 = await sb.auth.signInWithPassword({ email: email, password: pass });
+      btn.disabled = false;
+      if (lr2.error) {
+        showAlert(alertEl, '✅ Compte créé ! <a id="link-goto-login2" style="color:var(--accent);cursor:pointer;font-weight:600">Connectez-vous</a>.', 'success');
+        setTimeout(function(){ var l = document.getElementById('link-goto-login2'); if(l) l.addEventListener('click', function(){ switchPanel('login'); }); }, 50);
+      }
+    }
+  }
+
+  async function doForgot() {
+    var email = document.getElementById('fg-email').value.trim();
+    var alertEl = document.getElementById('forgot-alert');
+    var btn = document.getElementById('btn-do-forgot');
+    if (!email) { showAlert(alertEl, '❌ Veuillez entrer votre email.', 'error'); return; }
+    btn.disabled = true; showAlert(alertEl, '<span class="spinner"></span> Envoi...', 'success');
+    var resp = await sb.auth.resetPasswordForEmail(email, { redirectTo: window.location.href });
+    btn.disabled = false;
+    if (resp.error) {
+      if (resp.error.message.includes('rate limit')) {
+        showAlert(alertEl, '⚠️ Limite d\'emails. Contactez directement : <a href="mailto:roodwilliam81@gmail.com" style="color:var(--accent)">roodwilliam81@gmail.com</a>', 'error');
+      } else {
+        showAlert(alertEl, '❌ ' + resp.error.message, 'error');
+      }
+    } else {
+      showAlert(alertEl, '✅ Email envoyé ! Vérifiez votre boîte (et vos spams).', 'success');
+    }
+  }
+
+  async function doReset() {
+    var pass = document.getElementById('rs-pass').value;
+    var alertEl = document.getElementById('reset-alert');
+    var btn = document.getElementById('btn-do-reset');
+    if (!pass || pass.length < 6) { showAlert(alertEl, '❌ Minimum 6 caractères.', 'error'); return; }
+    btn.disabled = true; showAlert(alertEl, '<span class="spinner"></span> Mise à jour...', 'success');
+    var resp = await sb.auth.updateUser({ password: pass });
+    btn.disabled = false;
+    if (resp.error) { showAlert(alertEl, '❌ ' + resp.error.message, 'error'); }
+    else {
+      showAlert(alertEl, '✅ Mot de passe mis à jour !', 'success');
+      setTimeout(function(){ closeAuth(); history.replaceState({}, '', location.pathname); }, 1500);
+    }
+  }
+
+  async function doLogout() {
+    await sb.auth.signOut();
+  }
+
+  /* ===== ADMIN TAB SWITCH ===== */
+  function switchTab(name) {
+    document.getElementById('tab-clients').classList.toggle('active', name === 'clients');
+    document.getElementById('tab-videos').classList.toggle('active', name === 'videos');
+    document.getElementById('panel-clients').style.display = name === 'clients' ? 'block' : 'none';
+    document.getElementById('panel-videos').style.display = name === 'videos' ? 'block' : 'none';
+    if (name === 'videos') loadAdminVideos();
+  }
+
+  /* ===== UTILITIES ===== */
+  function showAlert(el, msg, type) {
+    el.innerHTML = '<div class="alert alert-' + type + '">' + msg + '</div>';
+  }
+
+  function esc(str) {
+    if (str == null) return '';
+    return String(str).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;').replace(/'/g,'&#39;');
+  }
+
+  function copyText(text, btn) {
+    navigator.clipboard.writeText(text).then(function(){
+      var orig = btn.textContent;
+      btn.textContent = '✓ Copié !';
+      setTimeout(function(){ btn.textContent = orig; }, 1800);
+    });
+  }
+
+  /* ===== EVENT LISTENERS (tous attachés ici, aucun inline onclick) ===== */
+  function attachEvents() {
+    // NAV logo
+    document.getElementById('nav-logo').addEventListener('click', function(){
+      if (!currentUser) showPage('home');
+    });
+
+    // HOME page buttons
+    document.getElementById('btn-login').addEventListener('click', function(){ openAuth('login'); });
+    document.getElementById('btn-register').addEventListener('click', function(){ openAuth('register'); });
+    document.getElementById('btn-getformation').addEventListener('click', function(){
+      document.getElementById('section-pricing').scrollIntoView({ behavior: 'smooth' });
+    });
+    document.getElementById('btn-seeprog').addEventListener('click', function(){
+      document.getElementById('section-modules').scrollIntoView({ behavior: 'smooth' });
+    });
+    document.getElementById('btn-startnow').addEventListener('click', function(){ openAuth('register'); });
+
+    // DASHBOARD logout
+    document.getElementById('btn-logout-dash').addEventListener('click', doLogout);
+
+    // ADMIN buttons
+    document.getElementById('btn-refresh').addEventListener('click', loadClients);
+    document.getElementById('btn-logout-admin').addEventListener('click', doLogout);
+    document.getElementById('tab-clients').addEventListener('click', function(){ switchTab('clients'); });
+    document.getElementById('tab-videos').addEventListener('click', function(){ switchTab('videos'); });
+    document.getElementById('search-input').addEventListener('input', filterClients);
+    document.getElementById('filter-select').addEventListener('change', filterClients);
+    document.getElementById('btn-upload').addEventListener('click', uploadVideo);
+
+    // AUTH modal
+    document.getElementById('btn-close-auth').addEventListener('click', closeAuth);
+    document.getElementById('overlay-auth').addEventListener('mousedown', function(e){
+      if (e.target === document.getElementById('overlay-auth')) closeAuth();
+    });
+    document.getElementById('btn-do-login').addEventListener('click', doLogin);
+    document.getElementById('btn-do-register').addEventListener('click', doRegister);
+    document.getElementById('btn-do-forgot').addEventListener('click', doForgot);
+    document.getElementById('btn-do-reset').addEventListener('click', doReset);
+    document.getElementById('link-forgot').addEventListener('click', function(){ switchPanel('forgot'); });
+    document.getElementById('link-to-register').addEventListener('click', function(){ switchPanel('register'); });
+    document.getElementById('link-to-login').addEventListener('click', function(){ switchPanel('login'); });
+    document.getElementById('link-back-login').addEventListener('click', function(){ switchPanel('login'); });
+
+    // ACTIVATE modal
+    document.getElementById('btn-confirm-activate').addEventListener('click', confirmActivate);
+    document.getElementById('btn-cancel-activate').addEventListener('click', closeActivate);
+    document.getElementById('btn-close-activate').addEventListener('click', closeActivate);
+    document.getElementById('btn-close-activate-done').addEventListener('click', function(){ closeActivate(); loadClients(); });
+    document.getElementById('btn-copy-key').addEventListener('click', function(){ copyText(lastKey, this); });
+    document.getElementById('overlay-activate').addEventListener('mousedown', function(e){
+      if (e.target === document.getElementById('overlay-activate')) closeActivate();
+    });
+
+    // PLAYER modal
+    document.getElementById('btn-close-player').addEventListener('click', closePlayer);
+    document.getElementById('overlay-player').addEventListener('mousedown', function(e){
+      if (e.target === document.getElementById('overlay-player')) closePlayer();
+    });
+
+    // KEYBOARD
+    document.addEventListener('keydown', function(e){
+      if (e.key === 'Escape') {
+        closeAuth();
+        closeActivate();
+        closePlayer();
+      }
+      if (e.key === 'Enter' && document.getElementById('overlay-auth').classList.contains('open')) {
+        if (document.getElementById('panel-login').style.display !== 'none') doLogin();
+        else if (document.getElementById('panel-register').style.display !== 'none') doRegister();
+        else if (document.getElementById('panel-forgot').style.display !== 'none') doForgot();
+        else if (document.getElementById('panel-reset').style.display !== 'none') doReset();
+      }
+    });
+  }
+
+  /* ===== START ===== */
+  attachEvents();
+  init();
+
+})();
+</script>
+</body>
+</html>
